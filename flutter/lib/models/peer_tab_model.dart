@@ -1,23 +1,18 @@
 import 'dart:convert';
-import 'dart:math';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_hbb/consts.dart';
-import 'package:flutter_hbb/models/peer_model.dart';
 import 'package:flutter_hbb/models/platform_model.dart';
-import 'package:get/get.dart';
 
 import '../common.dart';
 import 'model.dart';
 
+// 只保留 Address book 一个标签
 enum PeerTabIndex {
   ab,
 }
 
 class PeerTabModel with ChangeNotifier {
   WeakReference<FFI> parent;
-  int get currentTab => _currentTab;
-  int _currentTab = 0; // index in tabNames
+
   static const int maxTabCount = 1;
   static const List<String> tabNames = [
     'Address book',
@@ -25,21 +20,16 @@ class PeerTabModel with ChangeNotifier {
   static const List<IconData> icons = [
     IconFont.addressBook,
   ];
-  List<bool> isEnabled = List.from([
-    !(bind.isDisableAb() || bind.isDisableAccount()),
-  ]);
-  final List<bool> _isVisible = List.filled(maxTabCount, true, growable: false);
-  List<bool> get isVisibleEnabled => () {
-        final list = _isVisible.toList();
-        for (int i = 0; i < maxTabCount; i++) {
-          list[i] = list[i] && isEnabled[i];
-        }
-        return list;
-      }();
-  final List<int> orders =
-      List.generate(maxTabCount, (index) => index, growable: false);
-  List<int> get visibleEnabledOrderedIndexs =>
-      orders.where((e) => isVisibleEnabled[e]).toList();
+
+  // 只需要一个标签，始终启用且可见
+  List<bool> isEnabled = [true];
+  final List<bool> _isVisible = [true];
+  List<bool> get isVisibleEnabled => [true];
+  final List<int> orders = [0];
+  List<int> get visibleEnabledOrderedIndexs => [0];
+
+  int get currentTab => 0;
+  int _currentTab = 0;
   List<Peer> _selectedPeers = List.empty(growable: true);
   List<Peer> get selectedPeers => _selectedPeers;
   bool _multiSelectionMode = false;
@@ -51,69 +41,26 @@ class PeerTabModel with ChangeNotifier {
   String _lastId = '';
   String get lastId => _lastId;
 
-  PeerTabModel(this.parent) {
-    // visible
-    try {
-      final option = bind.getLocalFlutterOption(k: kOptionPeerTabVisible);
-      if (option.isNotEmpty) {
-        List<dynamic> decodeList = jsonDecode(option);
-        if (decodeList.length == _isVisible.length) {
-          for (int i = 0; i < _isVisible.length; i++) {
-            if (decodeList[i] is bool) {
-              _isVisible[i] = decodeList[i];
-            }
-          }
-        }
-      }
-    } catch (e) {
-      debugPrint("failed to get peer tab visible list:$e");
-    }
-    // order
-    try {
-      final option = bind.getLocalFlutterOption(k: kOptionPeerTabOrder);
-      if (option.isNotEmpty) {
-        List<dynamic> decodeList = jsonDecode(option);
-        if (decodeList.length == maxTabCount) {
-          var sortedList = decodeList.toList();
-          sortedList.sort();
-          bool valid = true;
-          for (int i = 0; i < maxTabCount; i++) {
-            if (sortedList[i] is! int || sortedList[i] != i) {
-              valid = false;
-            }
-          }
-          if (valid) {
-            for (int i = 0; i < orders.length; i++) {
-              orders[i] = decodeList[i];
-            }
-          }
-        }
-      }
-    } catch (e) {
-      debugPrint("failed to get peer tab order list: $e");
-    }
-    // init currentTab
-    _currentTab = 0;
-    _trySetCurrentTabToFirstVisibleEnabled();
-  }
+  PeerTabModel(this.parent);
 
+  // 当前Tab始终是0
   setCurrentTab(int index) {
-    if (_currentTab != index && index == 0) {
+    if (_currentTab != index) {
       _currentTab = index;
       notifyListeners();
     }
   }
 
   String tabTooltip(int index) {
-    if (index >= 0 && index < tabNames.length) {
-      return translate(tabNames[index]);
+    if (index == 0) {
+      return 'Address book';
     }
     return index.toString();
   }
 
   IconData tabIcon(int index) {
-    if (index >= 0 && index < icons.length) {
-      return icons[index];
+    if (index == 0) {
+      return IconFont.addressBook;
     }
     return Icons.help;
   }
@@ -129,9 +76,6 @@ class PeerTabModel with ChangeNotifier {
 
   select(Peer peer) {
     if (!_multiSelectionMode) {
-      // https://github.com/flutter/flutter/issues/101275#issuecomment-1604541700
-      // After onTap, the shift key should be pressed for a while when not in multiselection mode,
-      // because onTap is delayed when onDoubleTap is not null
       if (isDesktop || isWebDesktop) return;
       _multiSelectionMode = true;
     }
@@ -139,8 +83,8 @@ class PeerTabModel with ChangeNotifier {
     int thisIndex = cached.indexOf(peer.id);
     int lastIndex = cached.indexOf(_lastId);
     if (_isShiftDown && thisIndex >= 0 && lastIndex >= 0) {
-      int start = min(thisIndex, lastIndex);
-      int end = max(thisIndex, lastIndex);
+      int start = thisIndex < lastIndex ? thisIndex : lastIndex;
+      int end = thisIndex > lastIndex ? thisIndex : lastIndex;
       bool remove = isPeerSelected(peer.id);
       for (var i = start; i <= end; i++) {
         if (remove) {
@@ -164,9 +108,6 @@ class PeerTabModel with ChangeNotifier {
     notifyListeners();
   }
 
-  // `notifyListeners()` will cause many rebuilds.
-  // So, we need to reduce the calls to "notifyListeners()" only when necessary.
-  // A better way is to use a new model.
   setCurrentTabCachedPeers(List<Peer> peers) {
     Future.delayed(Duration.zero, () {
       final isPreEmpty = _currentTabCachedPeers.isEmpty;
@@ -197,33 +138,14 @@ class PeerTabModel with ChangeNotifier {
   }
 
   setTabVisible(int index, bool visible) {
-    if (index >= 0 && index < maxTabCount) {
-      if (_isVisible[index] != visible) {
-        _isVisible[index] = visible;
-        if (index == _currentTab && !visible) {
-          _trySetCurrentTabToFirstVisibleEnabled();
-        } else if (visible && visibleEnabledOrderedIndexs.length == 1) {
-          _currentTab = index;
-        }
-        try {
-          bind.setLocalFlutterOption(
-              k: kOptionPeerTabVisible, v: jsonEncode(_isVisible));
-        } catch (_) {}
-        notifyListeners();
-      }
-    }
+    // 只有一个标签，什么也不用做
   }
 
   _trySetCurrentTabToFirstVisibleEnabled() {
-    if (!visibleEnabledOrderedIndexs.contains(_currentTab)) {
-      if (visibleEnabledOrderedIndexs.isNotEmpty) {
-        _currentTab = visibleEnabledOrderedIndexs.first;
-      }
-    }
+    // 只有一个标签什么都不用做
   }
 
   reorder(int oldIndex, int newIndex) {
-    // 由于只有一个标签，重排序功能不再需要
-    return;
+    // 只有一个标签，不需要排序
   }
 }
