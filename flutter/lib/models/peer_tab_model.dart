@@ -11,38 +11,22 @@ import '../common.dart';
 import 'model.dart';
 
 enum PeerTabIndex {
-  recent,
-  fav,
-  lan,
   ab,
-  group,
 }
 
 class PeerTabModel with ChangeNotifier {
   WeakReference<FFI> parent;
   int get currentTab => _currentTab;
   int _currentTab = 0; // index in tabNames
-  static const int maxTabCount = 5;
+  static const int maxTabCount = 1;
   static const List<String> tabNames = [
-    'Recent sessions',
-    'Favorites',
-    'Discovered',
     'Address book',
-    'Accessible devices',
   ];
   static const List<IconData> icons = [
-    Icons.access_time_filled,
-    Icons.star,
-    Icons.explore,
     IconFont.addressBook,
-    IconFont.deviceGroupFill,
   ];
   List<bool> isEnabled = List.from([
-    true,
-    true,
-    !isWeb,
     !(bind.isDisableAb() || bind.isDisableAccount()),
-    !(bind.isDisableGroupPanel() || bind.isDisableAccount()),
   ]);
   final List<bool> _isVisible = List.filled(maxTabCount, true, growable: false);
   List<bool> get isVisibleEnabled => () {
@@ -109,16 +93,12 @@ class PeerTabModel with ChangeNotifier {
       debugPrint("failed to get peer tab order list: $e");
     }
     // init currentTab
-    _currentTab =
-        int.tryParse(bind.getLocalFlutterOption(k: kOptionPeerTabIndex)) ?? 0;
-    if (_currentTab < 0 || _currentTab >= maxTabCount) {
-      _currentTab = 0;
-    }
+    _currentTab = 0;
     _trySetCurrentTabToFirstVisibleEnabled();
   }
 
   setCurrentTab(int index) {
-    if (_currentTab != index) {
+    if (_currentTab != index && index == 0) {
       _currentTab = index;
       notifyListeners();
     }
@@ -243,28 +223,7 @@ class PeerTabModel with ChangeNotifier {
   }
 
   reorder(int oldIndex, int newIndex) {
-    if (oldIndex < newIndex) {
-      newIndex -= 1;
-    }
-    if (oldIndex < 0 || oldIndex >= visibleEnabledOrderedIndexs.length) {
-      return;
-    }
-    if (newIndex < 0 || newIndex >= visibleEnabledOrderedIndexs.length) {
-      return;
-    }
-    final oldTabValue = visibleEnabledOrderedIndexs[oldIndex];
-    final newTabValue = visibleEnabledOrderedIndexs[newIndex];
-    int oldValueIndex = orders.indexOf(oldTabValue);
-    int newValueIndex = orders.indexOf(newTabValue);
-    final list = orders.toList();
-    if (oldIndex != -1 && newIndex != -1) {
-      list.removeAt(oldValueIndex);
-      list.insert(newValueIndex, oldTabValue);
-      for (int i = 0; i < list.length; i++) {
-        orders[i] = list[i];
-      }
-      bind.setLocalFlutterOption(k: kOptionPeerTabOrder, v: jsonEncode(orders));
-      notifyListeners();
-    }
+    // 由于只有一个标签，重排序功能不再需要
+    return;
   }
 }
