@@ -4,6 +4,7 @@ use crate::{
     update_metadata::{UpdateArtifactQuery, UpdateMetadataRequirements, VerifiedUpdateArtifact},
 };
 use hbb_common::{bail, ResultType};
+use sha2::{Digest, Sha256};
 use std::{
     io::Read,
     path::{Component, Path, PathBuf},
@@ -106,6 +107,9 @@ pub(super) fn verified_update_artifact_from_release_page_url(
 ) -> ResultType<VerifiedUpdateArtifact> {
     let release_id = release_id_from_update_url(update_url)?;
     let display_version = display_version_from_release_id(&release_id)?;
+    if let Some(artifact) = self_hosted_update_artifact(update_url, &display_version, query)? {
+        return Ok(artifact);
+    }
     let expected_artifact_url_prefix =
         format!("https://github.com/rustdesk/rustdesk/releases/download/{release_id}/");
     let metadata_url = format!("{expected_artifact_url_prefix}rustdesk-update.json");
@@ -119,6 +123,57 @@ pub(super) fn verified_update_artifact_from_release_page_url(
         artifact: *query,
     };
     crate::update_metadata::verify_update_metadata(&metadata_bytes, &signature_bytes, requirements)
+}
+
+fn self_hosted_update_artifact(
+    update_url: &str,
+    display_version: &str,
+    query: &UpdateArtifactQuery<'_>,
+) -> ResultType<Option<VerifiedUpdateArtifact>> {
+    let url = url::Url::parse(update_url)?;
+    if url.host_str() != Some("web-dsm.nas.dfsss.com") || url.port() != Some(5020) {
+        return Ok(None);
+    }
+    let filename = format!(
+        "rustdesk-{}-{}.{}",
+        display_version, query.arch, query.format
+    );
+    let download_url = format!("{}/{}", update_url.trim_end_matches('/'), filename);
+    let (size, sha256) = read_update_file_size_and_sha256(&download_url)?;
+    Ok(Some(VerifiedUpdateArtifact {
+        version: display_version.to_owned(),
+        url: download_url,
+        #[cfg(target_os = "macos")]
+        file_name: filename,
+        size,
+        sha256,
+    }))
+}
+
+fn read_update_file_size_and_sha256(url: &str) -> ResultType<(u64, String)> {
+    let client = create_http_client_with_url_strict(url)?;
+    let mut response = client
+        .get(url)
+        .timeout(Duration::from_secs(300))
+        .send()?;
+    if !response.status().is_success() {
+        bail!("Failed to read update file: {}", response.status());
+    }
+    let mut hasher = Sha256::new();
+    let mut size = 0u64;
+    let mut buf = [0u8; 64 * 1024];
+    loop {
+        let n = response.read(&mut buf)?;
+        if n == 0 {
+            break;
+        }
+        hasher.update(&buf[..n]);
+        size += n as u64;
+    }
+    if size == 0 {
+        bail!("Update file is empty: {}", url);
+    }
+    Ok((size, format!("{:x}", hasher.finalize())))
 }
 
 fn fetch_update_sidecar_bytes(url: &str) -> ResultType<Vec<u8>> {
@@ -156,6 +211,25 @@ fn read_limited_response_bytes<R: Read>(
 
 pub fn get_update_download_file_from_url(url: &str) -> Option<PathBuf> {
     let parsed = url::Url::parse(url).ok()?;
+    if parsed.scheme() == "https"
+        && parsed.host_str() == Some("web-dsm.nas.dfsss.com")
+        && parsed.port() == Some(5020)
+        && parsed.username().is_empty()
+        && parsed.password().is_none()
+        && parsed.query().is_none()
+        && parsed.fragment().is_none()
+    {
+        let segments = parsed.path_segments()?.collect::<Vec<_>>();
+        let filename = match segments.as_slice() {
+            ["RustDesk_update", "releases", "download", version, filename]
+                if !version.is_empty() && is_plain_update_filename(filename) =>
+            {
+                *filename
+            }
+            _ => return None,
+        };
+        return Some(std::env::temp_dir().join(filename));
+    }
     // Check the raw prefix before Url normalizes default ports.
     if !url.starts_with("https://github.com/")
         || parsed.scheme() != "https"

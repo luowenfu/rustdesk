@@ -1088,11 +1088,12 @@ class RecentPeerCard extends BasePeerCard {
       menuItems.add(_unrememberPasswordAction(peer.id));
     }
 
-    if (!favs.contains(peer.id)) {
-      menuItems.add(_addFavAction(peer.id));
-    } else {
-      menuItems.add(_rmFavAction(peer.id, () async {}));
-    }
+    // 隐藏"添加到收藏"功能
+    // if (!favs.contains(peer.id)) {
+    //   menuItems.add(_addFavAction(peer.id));
+    // } else {
+    //   menuItems.add(_rmFavAction(peer.id, () async {}));
+    // }
 
     if (gFFI.userModel.userName.isNotEmpty) {
       menuItems.add(_addToAb(peer));
@@ -1168,11 +1169,12 @@ class DiscoveredPeerCard extends BasePeerCard {
       menuItems.add(_createShortCutAction(peer.id));
     }
 
-    if (!favs.contains(peer.id)) {
-      menuItems.add(_addFavAction(peer.id));
-    } else {
-      menuItems.add(_rmFavAction(peer.id, () async {}));
-    }
+    // 隐藏"添加到收藏"功能
+    // if (!favs.contains(peer.id)) {
+    //   menuItems.add(_addFavAction(peer.id));
+    // } else {
+    //   menuItems.add(_rmFavAction(peer.id, () async {}));
+    // }
 
     if (gFFI.userModel.userName.isNotEmpty) {
       menuItems.add(_addToAb(peer));

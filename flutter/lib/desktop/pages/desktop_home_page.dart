@@ -435,14 +435,15 @@ class _DesktopHomePageState extends State<DesktopHomePage>
       final isToUpdate = (isWindows || isMacOS) && bind.mainIsInstalled();
       String btnText = isToUpdate ? 'Update' : 'Download';
       GestureTapCallback onPressed = () async {
-        final Uri url = Uri.parse('https://rustdesk.com/download');
-        await launchUrl(url);
-      };
-      if (isToUpdate) {
-        onPressed = () {
+        if (isToUpdate) {
           handleUpdate(updateUrl);
-        };
-      }
+        } else {
+          // 未安装时，打开下载中心主页
+          // index.html 会自动读取 config.json 并显示最新版本的所有平台下载链接
+          const baseUrl = 'https://web-dsm.nas.dfsss.com:5020/RustDesk_update/';
+          await launchUrl(Uri.parse(baseUrl));
+        }
+      };
       return buildInstallCard(
           "Status",
           "${translate("new-version-of-{${bind.mainGetAppNameSync()}}-tip")} (${bind.mainGetNewVersion()}).",
@@ -451,7 +452,7 @@ class _DesktopHomePageState extends State<DesktopHomePage>
           closeButton: true,
           help: isToUpdate ? 'Changelog' : null,
           link: isToUpdate
-              ? 'https://github.com/rustdesk/rustdesk/releases/tag/${bind.mainGetNewVersion()}'
+              ? 'https://web-dsm.nas.dfsss.com:5020/RustDesk_update/'
               : null);
     }
     if (systemError.isNotEmpty) {

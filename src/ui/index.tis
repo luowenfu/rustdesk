@@ -835,7 +835,8 @@ class UpdateMe: Reactor.Component {
     }
 
     event click $(#install-me) {
-        handler.open_url("https://rustdesk.com/download");
+        // 直接使用 software_update_url（API 已返回完整的文件 URL）
+        handler.open_url(software_update_url);
         return;
         if (!is_win) {
             handler.open_url("https://rustdesk.com");

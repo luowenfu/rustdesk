@@ -136,18 +136,16 @@ class ServerModel with ChangeNotifier {
     _emptyIdShow = translate("Generating ...");
     _serverId = IDTextEditingController(text: _emptyIdShow);
 
-    /*
-    // initital _hideCm at startup
+    // initital hideCm at startup
     final verificationMethod =
         bind.mainGetOptionSync(key: kOptionVerificationMethod);
     final approveMode = bind.mainGetOptionSync(key: kOptionApproveMode);
-    _hideCm = option2bool(
+    hideCm = option2bool(
         'allow-hide-cm', bind.mainGetOptionSync(key: 'allow-hide-cm'));
     if (!(approveMode == 'password' &&
         verificationMethod == kUsePermanentPassword)) {
-      _hideCm = false;
+      hideCm = false;
     }
-    */
 
     timerCallback() async {
       final connectionStatus =
@@ -234,14 +232,12 @@ class ServerModel with ChangeNotifier {
     final approveMode = await bind.mainGetOption(key: kOptionApproveMode);
     final numericOneTimePassword =
         await mainGetBoolOption(kOptionAllowNumericOneTimePassword);
-    /*
-    var hideCm = option2bool(
+    var tmpHideCm = option2bool(
         'allow-hide-cm', await bind.mainGetOption(key: 'allow-hide-cm'));
     if (!(approveMode == 'password' &&
         verificationMethod == kUsePermanentPassword)) {
-      hideCm = false;
+      tmpHideCm = false;
     }
-    */
     if (_approveMode != approveMode) {
       _approveMode = approveMode;
       update = true;
@@ -276,11 +272,10 @@ class ServerModel with ChangeNotifier {
       _allowNumericOneTimePassword = numericOneTimePassword;
       update = true;
     }
-    /*
-    if (_hideCm != hideCm) {
-      _hideCm = hideCm;
+    if (hideCm != tmpHideCm) {
+      hideCm = tmpHideCm;
       if (desktopType == DesktopType.cm) {
-        if (hideCm) {
+        if (tmpHideCm) {
           await hideCmWindow();
         } else {
           await showCmWindow();
@@ -288,7 +283,6 @@ class ServerModel with ChangeNotifier {
       }
       update = true;
     }
-    */
     if (update) {
       notifyListeners();
     }

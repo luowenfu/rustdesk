@@ -124,16 +124,10 @@ class _ConnectionPageState extends State<ConnectionPage> {
         ? const SizedBox(height: 0)
         : InkWell(
             onTap: () async {
-              final url = 'https://rustdesk.com/download';
-              // https://pub.dev/packages/url_launcher#configuration
-              // https://developer.android.com/training/package-visibility/use-cases#open-urls-custom-tabs
-              //
-              // `await launchUrl(Uri.parse(url))` can also run if skip
-              // 1. The following check
-              // 2. `<action android:name="android.support.customtabs.action.CustomTabsService" />` in AndroidManifest.xml
-              //
-              // But it is better to add the check.
-              await launchUrl(Uri.parse(url));
+              // Android 打开下载中心主页
+              // 用户可以选择合适的 APK 版本（universal/aarch64/armv7）
+              const baseUrl = 'https://web-dsm.nas.dfsss.com:5020/RustDesk_update/';
+              await launchUrl(Uri.parse(baseUrl));
             },
             child: Container(
                 alignment: AlignmentDirectional.center,

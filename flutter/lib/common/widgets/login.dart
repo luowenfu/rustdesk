@@ -734,23 +734,24 @@ Future<bool?> _openLoginDialog() async {
   // Track hover state for the close icon
   bool isCloseHovered = false;
 
-  final loginOptions = [].obs;
-  final loginOptionsError = Rxn<Object>();
-  final loginOptionsInProgress = false.obs;
-  fetchLoginOptions() async {
-    loginOptionsInProgress.value = true;
-    try {
-      loginOptions.value = await UserModel.queryOidcLoginOptions();
-      loginOptionsError.value = null;
-    } catch (e) {
-      debugPrint("queryOidcLoginOptions failed: $e");
-      loginOptionsError.value = e;
-    } finally {
-      loginOptionsInProgress.value = false;
-    }
-  }
+  // 删除第三方登录 
+  // final loginOptions = [].obs;
+  // final loginOptionsError = Rxn<Object>();
+  // final loginOptionsInProgress = false.obs;
+  // fetchLoginOptions() async {
+  //   loginOptionsInProgress.value = true;
+  //   try {
+  //     loginOptions.value = await UserModel.queryOidcLoginOptions();
+  //     loginOptionsError.value = null;
+  //   } catch (e) {
+  //     debugPrint("queryOidcLoginOptions failed: $e");
+  //     loginOptionsError.value = e;
+  //   } finally {
+  //     loginOptionsInProgress.value = false;
+  //   }
+  // }
 
-  Future.delayed(Duration.zero, fetchLoginOptions);
+  // Future.delayed(Duration.zero, fetchLoginOptions);
 
   final res = await gFFI.dialogManager.show<bool>((setState, close, context) {
     username.addListener(() {
@@ -856,81 +857,7 @@ Future<bool?> _openLoginDialog() async {
       setState(() => isInProgress = false);
     }
 
-    thirdAuthWidget() => Obx(() {
-          final error = loginOptionsError.value;
-          final inProgress = loginOptionsInProgress.value;
-          if (error != null) {
-            return Column(
-              children: [
-                const SizedBox(height: 8.0),
-                // NOT use Offstage to wrap LinearProgressIndicator
-                if (inProgress) const LinearProgressIndicator(),
-                if (!inProgress && error is! RequestException)
-                  Text(
-                    translate('network_error_tip'),
-                    style: const TextStyle(fontSize: 12),
-                    textAlign: TextAlign.center,
-                  ),
-                TextButton(
-                  style: TextButton.styleFrom(
-                    foregroundColor: Theme.of(context).colorScheme.primary,
-                  ),
-                  onPressed: inProgress ? null : fetchLoginOptions,
-                  child: Text(translate('Retry')),
-                ),
-                if (!inProgress)
-                  SelectableText(
-                    error.toString(),
-                    style: const TextStyle(fontSize: 11, color: Colors.red),
-                    textAlign: TextAlign.center,
-                  ),
-              ],
-            );
-          }
-          return Offstage(
-            offstage: loginOptions.isEmpty,
-            child: Column(
-              children: [
-                const SizedBox(
-                  height: 8.0,
-                ),
-                Center(
-                    child: Text(
-                  translate('or'),
-                  style: TextStyle(fontSize: 16),
-                )),
-                const SizedBox(
-                  height: 8.0,
-                ),
-                LoginWidgetOP(
-                  ops: loginOptions
-                      .map((e) => ConfigOP(op: e['name'], icon: e['icon']))
-                      .toList(),
-                  curOP: curOP,
-                  startAuth: oidcAuth.start,
-                  cancelAuth: oidcAuth.cancelCurrent,
-                  canStartAuth: oidcAuth.canStart,
-                  cbLogin: (Map<String, dynamic> authBody) async {
-                    LoginResponse? resp;
-                    try {
-                      // access_token is already stored in the rust side.
-                      resp =
-                          gFFI.userModel.getLoginResponseFromAuthBody(authBody);
-                    } catch (e) {
-                      debugPrint(
-                          'Failed to parse oidc login body: "$authBody"');
-                    }
-                    close(true);
-
-                    if (resp != null) {
-                      handleLoginResponse(resp, false, null);
-                    }
-                  },
-                ),
-              ],
-            ),
-          );
-        });
+    thirdAuthWidget() => const SizedBox.shrink();
 
     final title = Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,

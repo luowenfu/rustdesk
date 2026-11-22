@@ -182,7 +182,9 @@ class UpdateProgressState extends State<UpdateProgress> {
     }
 
     jumplink() {
-      launchUrl(Uri.parse(releasePageUrl));
+      // 自动更新下载，点击“下载”打开下载中心主页
+      const downloadCenterUrl = 'https://web-dsm.nas.dfsss.com:5020/RustDesk_update/';
+      launchUrl(Uri.parse(downloadCenterUrl));
       dialogManager.dismissAll();
     }
 

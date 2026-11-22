@@ -1069,14 +1069,14 @@ pub fn check_software_update() {
 
 pub(crate) fn release_id_from_update_url(update_url: &str) -> ResultType<String> {
     let url = url::Url::parse(update_url)?;
-    if url.scheme() != "https" || url.host_str() != Some("github.com") {
+    let self_hosted = url.host_str() == Some("web-dsm.nas.dfsss.com") && url.port() == Some(5020);
+    if url.scheme() != "https" || !(self_hosted || url.host_str() == Some("github.com")) {
         bail!(
             "Update URL is not a GitHub HTTPS release URL: {}",
             update_url
         );
     }
-    if url_has_explicit_port(update_url)
-        || url.port().is_some()
+    if (!self_hosted && (url_has_explicit_port(update_url) || url.port().is_some()))
         || !url.username().is_empty()
         || url.password().is_some()
     {
@@ -1099,6 +1099,10 @@ pub(crate) fn release_id_from_update_url(update_url: &str) -> ResultType<String>
     let release_id = match segments.as_slice() {
         ["rustdesk", "rustdesk", "releases", "tag", release_id] => *release_id,
         ["rustdesk", "rustdesk", "releases", "tag", release_id, ""] => *release_id,
+        ["RustDesk_update", "releases", "download", release_id] if self_hosted => *release_id,
+        ["RustDesk_update", "releases", "download", release_id, ""] if self_hosted => {
+            *release_id
+        }
         _ => bail!(
             "Update URL is not a RustDesk release tag URL: {}",
             update_url
@@ -1308,7 +1312,7 @@ fn get_api_server_(api: String, custom: String) -> String {
             return format!("http://{}", s);
         }
     }
-    "https://admin.rustdesk.com".to_owned()
+    "https://rustdesk-api.nas.dfsss.com:5020".to_owned()
 }
 
 #[inline]
