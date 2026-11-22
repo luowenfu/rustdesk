@@ -31,16 +31,17 @@ jobs:
     env:
       BRANCH: auto-update-webpki-roots
     steps:
-      - name: Configure private submodule credentials
-        shell: bash
-        env:
-          SUBMODULE_PAT: ${{ secrets.SUBMODULE_PAT }}
-        run: |
-          git config --global url."https://x-access-token:${SUBMODULE_PAT}@github.com/luowenfu/rustdesk_hbb_common".insteadOf "https://github.com/luowenfu/rustdesk_hbb_common"
       - name: Checkout source code
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           submodules: false
+      - name: Configure private submodule credentials
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.SUBMODULE_PAT }}
+        run: |
+          printf '%s' "$GH_TOKEN" | gh auth login --with-token
+          gh auth setup-git
       - name: Checkout private submodule
         shell: bash
         run: |

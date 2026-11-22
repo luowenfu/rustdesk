@@ -107,16 +107,17 @@ jobs:
       contents: write
 
     steps:
-      - name: Configure private submodule credentials
-        shell: bash
-        env:
-          SUBMODULE_PAT: ${{ secrets.SUBMODULE_PAT }}
-        run: |
-          git config --global url."https://x-access-token:${SUBMODULE_PAT}@github.com/luowenfu/rustdesk_hbb_common".insteadOf "https://github.com/luowenfu/rustdesk_hbb_common"
       - name: Checkout source code
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           submodules: false
+      - name: Configure private submodule credentials
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.SUBMODULE_PAT }}
+        run: |
+          printf '%s' "$GH_TOKEN" | gh auth login --with-token
+          gh auth setup-git
       - name: Checkout private submodule
         shell: bash
         run: |
@@ -202,16 +203,17 @@ jobs:
             core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
             core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
 
-      - name: Configure private submodule credentials
-        shell: bash
-        env:
-          SUBMODULE_PAT: ${{ secrets.SUBMODULE_PAT }}
-        run: |
-          git config --global url."https://x-access-token:${SUBMODULE_PAT}@github.com/luowenfu/rustdesk_hbb_common".insteadOf "https://github.com/luowenfu/rustdesk_hbb_common"
       - name: Checkout source code
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           submodules: false
+      - name: Configure private submodule credentials
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.SUBMODULE_PAT }}
+        run: |
+          printf '%s' "$GH_TOKEN" | gh auth login --with-token
+          gh auth setup-git
       - name: Checkout private submodule
         shell: bash
         run: |
@@ -629,16 +631,17 @@ jobs:
             core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
             core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
 
-      - name: Configure private submodule credentials
-        shell: bash
-        env:
-          SUBMODULE_PAT: ${{ secrets.SUBMODULE_PAT }}
-        run: |
-          git config --global url."https://x-access-token:${SUBMODULE_PAT}@github.com/luowenfu/rustdesk_hbb_common".insteadOf "https://github.com/luowenfu/rustdesk_hbb_common"
       - name: Checkout source code
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           submodules: false
+      - name: Configure private submodule credentials
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.SUBMODULE_PAT }}
+        run: |
+          printf '%s' "$GH_TOKEN" | gh auth login --with-token
+          gh auth setup-git
       - name: Checkout private submodule
         shell: bash
         run: |
@@ -850,16 +853,17 @@ jobs:
       - name: Install dependencies
         run: |
           brew install nasm yasm
-      - name: Configure private submodule credentials
-        shell: bash
-        env:
-          SUBMODULE_PAT: ${{ secrets.SUBMODULE_PAT }}
-        run: |
-          git config --global url."https://x-access-token:${SUBMODULE_PAT}@github.com/luowenfu/rustdesk_hbb_common".insteadOf "https://github.com/luowenfu/rustdesk_hbb_common"
       - name: Checkout source code
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           submodules: false
+      - name: Configure private submodule credentials
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.SUBMODULE_PAT }}
+        run: |
+          printf '%s' "$GH_TOKEN" | gh auth login --with-token
+          gh auth setup-git
       - name: Checkout private submodule
         shell: bash
         run: |
@@ -989,16 +993,17 @@ jobs:
             core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
             core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
 
-      - name: Configure private submodule credentials
-        shell: bash
-        env:
-          SUBMODULE_PAT: ${{ secrets.SUBMODULE_PAT }}
-        run: |
-          git config --global url."https://x-access-token:${SUBMODULE_PAT}@github.com/luowenfu/rustdesk_hbb_common".insteadOf "https://github.com/luowenfu/rustdesk_hbb_common"
       - name: Checkout source code
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           submodules: false
+      - name: Configure private submodule credentials
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.SUBMODULE_PAT }}
+        run: |
+          printf '%s' "$GH_TOKEN" | gh auth login --with-token
+          gh auth setup-git
       - name: Checkout private submodule
         shell: bash
         run: |
@@ -1558,16 +1563,17 @@ jobs:
                tree \
                wget
 
-      - name: Configure private submodule credentials
-        shell: bash
-        env:
-          SUBMODULE_PAT: ${{ secrets.SUBMODULE_PAT }}
-        run: |
-          git config --global url."https://x-access-token:${SUBMODULE_PAT}@github.com/luowenfu/rustdesk_hbb_common".insteadOf "https://github.com/luowenfu/rustdesk_hbb_common"
       - name: Checkout source code
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           submodules: false
+      - name: Configure private submodule credentials
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.SUBMODULE_PAT }}
+        run: |
+          printf '%s' "$GH_TOKEN" | gh auth login --with-token
+          gh auth setup-git
       - name: Checkout private submodule
         shell: bash
         run: |
@@ -1841,16 +1847,17 @@ jobs:
                tree \
                wget
 
-      - name: Configure private submodule credentials
-        shell: bash
-        env:
-          SUBMODULE_PAT: ${{ secrets.SUBMODULE_PAT }}
-        run: |
-          git config --global url."https://x-access-token:${SUBMODULE_PAT}@github.com/luowenfu/rustdesk_hbb_common".insteadOf "https://github.com/luowenfu/rustdesk_hbb_common"
       - name: Checkout source code
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           submodules: false
+      - name: Configure private submodule credentials
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.SUBMODULE_PAT }}
+        run: |
+          printf '%s' "$GH_TOKEN" | gh auth login --with-token
+          gh auth setup-git
       - name: Checkout private submodule
         shell: bash
         run: |
@@ -2018,16 +2025,17 @@ jobs:
             sudo apt-get install -y qemu-user-static
           fi
 
-      - name: Configure private submodule credentials
-        shell: bash
-        env:
-          SUBMODULE_PAT: ${{ secrets.SUBMODULE_PAT }}
-        run: |
-          git config --global url."https://x-access-token:${SUBMODULE_PAT}@github.com/luowenfu/rustdesk_hbb_common".insteadOf "https://github.com/luowenfu/rustdesk_hbb_common"
       - name: Checkout source code
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           submodules: false
+      - name: Configure private submodule credentials
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.SUBMODULE_PAT }}
+        run: |
+          printf '%s' "$GH_TOKEN" | gh auth login --with-token
+          gh auth setup-git
       - name: Checkout private submodule
         shell: bash
         run: |
@@ -2354,16 +2362,17 @@ jobs:
           sudo apt-get install -y nasm
           sudo apt-get install -y qemu-user-static
 
-      - name: Configure private submodule credentials
-        shell: bash
-        env:
-          SUBMODULE_PAT: ${{ secrets.SUBMODULE_PAT }}
-        run: |
-          git config --global url."https://x-access-token:${SUBMODULE_PAT}@github.com/luowenfu/rustdesk_hbb_common".insteadOf "https://github.com/luowenfu/rustdesk_hbb_common"
       - name: Checkout source code
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           submodules: false
+      - name: Configure private submodule credentials
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.SUBMODULE_PAT }}
+        run: |
+          printf '%s' "$GH_TOKEN" | gh auth login --with-token
+          gh auth setup-git
       - name: Checkout private submodule
         shell: bash
         run: |
@@ -2700,16 +2709,17 @@ jobs:
             core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
             core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
 
-      - name: Configure private submodule credentials
-        shell: bash
-        env:
-          SUBMODULE_PAT: ${{ secrets.SUBMODULE_PAT }}
-        run: |
-          git config --global url."https://x-access-token:${SUBMODULE_PAT}@github.com/luowenfu/rustdesk_hbb_common".insteadOf "https://github.com/luowenfu/rustdesk_hbb_common"
       - name: Checkout source code
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           submodules: false
+      - name: Configure private submodule credentials
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.SUBMODULE_PAT }}
+        run: |
+          printf '%s' "$GH_TOKEN" | gh auth login --with-token
+          gh auth setup-git
       - name: Checkout private submodule
         shell: bash
         run: |
@@ -2927,16 +2937,17 @@ jobs:
           - { target: x86_64-unknown-linux-gnu, arch: x86_64 }
           - { target: aarch64-unknown-linux-gnu, arch: aarch64 }
     steps:
-      - name: Configure private submodule credentials
-        shell: bash
-        env:
-          SUBMODULE_PAT: ${{ secrets.SUBMODULE_PAT }}
-        run: |
-          git config --global url."https://x-access-token:${SUBMODULE_PAT}@github.com/luowenfu/rustdesk_hbb_common".insteadOf "https://github.com/luowenfu/rustdesk_hbb_common"
       - name: Checkout source code
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           submodules: false
+      - name: Configure private submodule credentials
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.SUBMODULE_PAT }}
+        run: |
+          printf '%s' "$GH_TOKEN" | gh auth login --with-token
+          gh auth setup-git
       - name: Checkout private submodule
         shell: bash
         run: |
@@ -3013,16 +3024,17 @@ jobs:
               suffix: "",
             }
     steps:
-      - name: Configure private submodule credentials
-        shell: bash
-        env:
-          SUBMODULE_PAT: ${{ secrets.SUBMODULE_PAT }}
-        run: |
-          git config --global url."https://x-access-token:${SUBMODULE_PAT}@github.com/luowenfu/rustdesk_hbb_common".insteadOf "https://github.com/luowenfu/rustdesk_hbb_common"
       - name: Checkout source code
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           submodules: false
+      - name: Configure private submodule credentials
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.SUBMODULE_PAT }}
+        run: |
+          printf '%s' "$GH_TOKEN" | gh auth login --with-token
+          gh auth setup-git
       - name: Checkout private submodule
         shell: bash
         run: |
@@ -3085,16 +3097,17 @@ jobs:
     env:
       RELEASE_NAME: web-basic
     steps:
-      - name: Configure private submodule credentials
-        shell: bash
-        env:
-          SUBMODULE_PAT: ${{ secrets.SUBMODULE_PAT }}
-        run: |
-          git config --global url."https://x-access-token:${SUBMODULE_PAT}@github.com/luowenfu/rustdesk_hbb_common".insteadOf "https://github.com/luowenfu/rustdesk_hbb_common"
       - name: Checkout source code
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
           submodules: false
+      - name: Configure private submodule credentials
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.SUBMODULE_PAT }}
+        run: |
+          printf '%s' "$GH_TOKEN" | gh auth login --with-token
+          gh auth setup-git
       - name: Checkout private submodule
         shell: bash
         run: |
