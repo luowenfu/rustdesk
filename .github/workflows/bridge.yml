@@ -35,11 +35,9 @@ jobs:
             }
     steps:
       - name: Checkout source code
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        uses: ./.github/actions/checkout-private
         with:
-          submodules: recursive
-          token: ${{ secrets.SUBMODULE_PAT }}
-
+          submodule-token: ${{ secrets.SUBMODULE_PAT }}
       - name: Install prerequisites
         run: |
           sudo apt-get install ca-certificates -y
