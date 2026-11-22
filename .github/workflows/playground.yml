@@ -85,11 +85,22 @@ jobs:
             core.exportVariable('ACTIONS_CACHE_URL', process.env.ACTIONS_CACHE_URL || '');
             core.exportVariable('ACTIONS_RUNTIME_TOKEN', process.env.ACTIONS_RUNTIME_TOKEN || '');
 
+      - name: Configure private submodule credentials
+        shell: bash
+        env:
+          SUBMODULE_PAT: ${{ secrets.SUBMODULE_PAT }}
+        run: |
+          git config --global url."https://x-access-token:${SUBMODULE_PAT}@github.com/luowenfu/rustdesk_hbb_common".insteadOf "https://github.com/luowenfu/rustdesk_hbb_common"
       - name: Checkout source code
-        uses: ./.github/actions/checkout-private
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
-          submodule-token: ${{ secrets.SUBMODULE_PAT }}
           ref: ${{ matrix.job.ref }}
+          submodules: false
+      - name: Checkout private submodule
+        shell: bash
+        run: |
+          git submodule sync --recursive
+          git submodule update --init --recursive
       - name: Import the codesign cert
         if: env.MACOS_P12_BASE64 != null
         uses: apple-actions/import-codesign-certs@253ddeeac23f2bdad1646faac5c8c2832e800071 # v1
@@ -245,11 +256,22 @@ jobs:
               ref: master, # latest
             }
     steps:
+      - name: Configure private submodule credentials
+        shell: bash
+        env:
+          SUBMODULE_PAT: ${{ secrets.SUBMODULE_PAT }}
+        run: |
+          git config --global url."https://x-access-token:${SUBMODULE_PAT}@github.com/luowenfu/rustdesk_hbb_common".insteadOf "https://github.com/luowenfu/rustdesk_hbb_common"
       - name: Checkout source code
-        uses: ./.github/actions/checkout-private
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
-          submodule-token: ${{ secrets.SUBMODULE_PAT }}
           ref: ${{ matrix.job.ref }}
+          submodules: false
+      - name: Checkout private submodule
+        shell: bash
+        run: |
+          git submodule sync --recursive
+          git submodule update --init --recursive
       - name: Install dependencies
         run: |
           sudo apt-get update

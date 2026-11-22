@@ -34,10 +34,21 @@ jobs:
               artifact-name: "bridge-artifact-flutter-3.44",
             }
     steps:
+      - name: Configure private submodule credentials
+        shell: bash
+        env:
+          SUBMODULE_PAT: ${{ secrets.SUBMODULE_PAT }}
+        run: |
+          git config --global url."https://x-access-token:${SUBMODULE_PAT}@github.com/luowenfu/rustdesk_hbb_common".insteadOf "https://github.com/luowenfu/rustdesk_hbb_common"
       - name: Checkout source code
-        uses: ./.github/actions/checkout-private
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
         with:
-          submodule-token: ${{ secrets.SUBMODULE_PAT }}
+          submodules: false
+      - name: Checkout private submodule
+        shell: bash
+        run: |
+          git submodule sync --recursive
+          git submodule update --init --recursive
       - name: Install prerequisites
         run: |
           sudo apt-get install ca-certificates -y
