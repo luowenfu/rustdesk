@@ -43,7 +43,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.SUBMODULE_PAT }}
         run: |
-          printf '%s' "$GH_TOKEN" | gh auth login --with-token
+          token="$GH_TOKEN"
+          unset GH_TOKEN
+          printf '%s' "$token" | gh auth login --hostname github.com --with-token
           gh auth setup-git
       - name: Checkout private submodule
         shell: bash
